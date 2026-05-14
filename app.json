@@ -9,6 +9,6 @@
     }
   },
   "addons": [
-    "heroku-postgresql:mini"
+    "heroku-postgresql:essential-0"
   ]
 }
