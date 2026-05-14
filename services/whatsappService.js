@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const QRCode = require('qrcode');
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('gifted-baileys');
 const logger = require('../config/logger');
 
 const authFolder = path.join(process.cwd(), 'sessions', 'baileys_auth');
@@ -68,6 +68,31 @@ class WhatsAppService {
       phone: normalizedPhone,
       message,
       sentAt: new Date().toISOString()
+    });
+  }
+
+
+  async sendButtonMessage(phone, text, buttons = []) {
+    if (!this.sock) throw new Error('WhatsApp is not connected');
+    const normalizedPhone = String(phone || '').replace(/\D/g, '');
+    if (!normalizedPhone) throw new Error('Invalid phone number');
+
+    const [lookup] = await this.sock.onWhatsApp(normalizedPhone);
+    if (!lookup?.exists || !lookup?.jid) {
+      throw new Error('WhatsApp number is not registered');
+    }
+
+    const jid = lookup.jid;
+    const formattedButtons = buttons.slice(0, 3).map((button, index) => ({
+      buttonId: button?.id || `btn_${index + 1}`,
+      buttonText: { displayText: button?.text || `Option ${index + 1}` },
+      type: 1
+    }));
+
+    await this.sock.sendMessage(jid, {
+      text,
+      buttons: formattedButtons,
+      headerType: 1
     });
   }
 
