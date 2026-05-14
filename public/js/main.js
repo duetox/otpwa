@@ -11,3 +11,11 @@ async function verifyOtp() {
   const data = await res.json();
   document.getElementById('msg').innerText = data.message;
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const sendCodeButton = document.getElementById('send-code-btn');
+  const verifyButton = document.getElementById('verify-btn');
+
+  if (sendCodeButton) sendCodeButton.addEventListener('click', sendOtp);
+  if (verifyButton) verifyButton.addEventListener('click', verifyOtp);
+});
