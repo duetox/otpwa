@@ -52,10 +52,21 @@ class WhatsAppService {
 
   async sendOtp(phone, otp, expirySeconds) {
     if (!this.sock) throw new Error('WhatsApp is not connected');
-    const message = `🌸 *Your OTP is: ${otp}*\n\n⏳ Expires in ${Math.floor(expirySeconds / 60)} minutes.\n⚠️ Never share this code with anyone.`;
-    const jid = `${phone.replace(/\D/g, '')}@s.whatsapp.net`;
+    const normalizedPhone = String(phone || '').replace(/\D/g, '');
+    if (!normalizedPhone) throw new Error('Invalid phone number');
+
+    const jid = `${normalizedPhone}@s.whatsapp.net`;
+    const [isRegistered] = await this.sock.onWhatsApp(normalizedPhone);
+    if (!isRegistered?.exists) {
+      throw new Error('WhatsApp number is not registered');
+    }
+
+    const message = `🌸 *Your OTP is: ${otp}*\n\n⏳ Expires in ${Math.max(1, Math.floor(expirySeconds / 60))} minutes.\n⚠️ Never share this code with anyone.`;
+
+    await this.sock.presenceSubscribe(jid);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+
     await this.sock.sendMessage(jid, { text: message });
-    const normalizedPhone = phone.replace(/\D/g, '');
     this.lastSentByNumber.set(normalizedPhone, {
       phone: normalizedPhone,
       message,
