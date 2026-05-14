@@ -3,6 +3,7 @@ const { otpLimiter } = require('../middleware/rateLimit');
 const settingsService = require('../services/settingsService');
 const otpService = require('../services/otpService');
 const { addLog } = require('../services/auditService');
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 module.exports = (waService) => {
   const router = express.Router();
@@ -20,6 +21,7 @@ module.exports = (waService) => {
         return res.status(400).json({ ok: false, message: 'Invalid number. Use digits only, without +.' });
       }
 
+      await delay(2000);
       const settings = await settingsService.getAllSettings();
       const { code } = await otpService.createOtp(phone, Number(settings.otp_max_attempts), Number(settings.otp_expiry_seconds));
       await waService.sendOtp(phone, code, Number(settings.otp_expiry_seconds));
@@ -41,14 +43,15 @@ module.exports = (waService) => {
     try {
       const phone = String(req.body.phone || '').trim();
       if (!/^\+?[1-9]\d{7,14}$/.test(phone)) return res.status(400).json({ ok: false, message: 'Invalid phone number format.' });
+      await delay(2000);
       const settings = await settingsService.getAllSettings();
       const { code } = await otpService.createOtp(phone, Number(settings.otp_max_attempts), Number(settings.otp_expiry_seconds));
       await waService.sendOtp(phone, code, Number(settings.otp_expiry_seconds));
       await addLog('info', 'otp_sent', { phone });
-      res.json({ ok: true, message: 'OTP sent successfully.' });
+      res.json({ ok: true, message: 'OTP sent successfully.', status: 'sent' });
     } catch (error) {
       await addLog('error', 'otp_send_failed', { error: error.message });
-      res.status(500).json({ ok: false, message: error.message });
+      res.status(500).json({ ok: false, message: 'Unable to send OTP right now. Please try again.', status: 'failed' });
     }
   });
 

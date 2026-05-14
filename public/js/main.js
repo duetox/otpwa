@@ -3,15 +3,21 @@ let lastAutoSentPhone = '';
 function setMessage(message, isError = false) {
   const msgEl = document.getElementById('msg');
   if (!msgEl) return;
-  msgEl.textContent = message || '';
+  const safeMessage = String(message || '').trim();
+  msgEl.textContent = safeMessage;
   msgEl.style.color = isError ? '#ff6b6b' : '';
 }
 
 async function sendOtp(phoneFromAuto = null) {
   const phone = phoneFromAuto ?? document.getElementById('phone').value;
+  setMessage('Sending OTP...');
   const res = await fetch('/send-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone})});
   const data = await res.json();
-  setMessage(data.message, !data.ok);
+  if (data.ok) {
+    setMessage('🌸 OTP sent successfully. Please check WhatsApp.');
+  } else {
+    setMessage('Unable to send OTP right now. Please try again.', true);
+  }
   return data;
 }
 async function verifyOtp() {
@@ -36,10 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       try {
         const data = await sendOtp(phone);
-        if (data.ok) {
-          lastAutoSentPhone = phone;
-          setMessage('🌸 OTP sent successfully. Please check WhatsApp.');
-        }
+        if (data.ok) lastAutoSentPhone = phone;
       } catch (_error) {
         setMessage('Unable to send OTP right now. Please try again.', true);
       }
