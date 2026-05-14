@@ -1,0 +1,14 @@
+<!DOCTYPE html><html><head><link rel='stylesheet' href='/css/style.css'></head><body><div class='wrap'><div class='card'>
+<h2>Admin Dashboard</h2><p>Status: <b id='status'><%= waState %></b></p>
+<% if (qr) { %><img src='<%= qr %>' style='max-width:220px'><% } %>
+<form method='post' action='/admin/wa/connect'><button>Reconnect</button></form>
+<form method='post' action='/admin/wa/disconnect'><button>Disconnect</button></form>
+<h3>OTP Settings</h3>
+<form method='post' action='/admin/settings'>
+<input name='otp_expiry_seconds' value='<%= settings.otp_expiry_seconds %>'>
+<input name='otp_max_attempts' value='<%= settings.otp_max_attempts %>'>
+<button>Save</button></form>
+<h3>Recent logs</h3><ul><% logs.forEach(l=> { %><li><%= l.created_at %> - <%= l.action %></li><% }) %></ul>
+<a href='/admin/logout'>Logout</a></div></div>
+<script src='/socket.io/socket.io.js'></script><script>const s=io();s.on('wa:status',d=>{document.getElementById('status').innerText=d.state;});</script>
+</body></html>

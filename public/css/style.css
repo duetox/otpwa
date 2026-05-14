@@ -1,0 +1,4 @@
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(120deg,#0f172a,#1e293b);color:#fff;min-height:100vh;margin:0}
+.wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.card{backdrop-filter:blur(20px);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:22px;padding:24px;max-width:420px;width:100%;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+input,button{width:100%;padding:12px;border-radius:12px;border:none;margin:8px 0}button{background:#f472b6;color:#fff;font-weight:600}
