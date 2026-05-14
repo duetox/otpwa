@@ -7,6 +7,10 @@ const logger = require('../config/logger');
 const authFolder = path.join(process.cwd(), 'sessions', 'baileys_auth');
 if (!fs.existsSync(authFolder)) fs.mkdirSync(authFolder, { recursive: true });
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 class WhatsAppService {
   constructor(io) {
     this.io = io;
@@ -55,18 +59,24 @@ class WhatsAppService {
     const normalizedPhone = String(phone || '').replace(/\D/g, '');
     if (!normalizedPhone) throw new Error('Invalid phone number');
 
-    const jid = `${normalizedPhone}@s.whatsapp.net`;
-    const [isRegistered] = await this.sock.onWhatsApp(normalizedPhone);
-    if (!isRegistered?.exists) {
+    const [lookup] = await this.sock.onWhatsApp(normalizedPhone);
+    if (!lookup?.exists || !lookup?.jid) {
       throw new Error('WhatsApp number is not registered');
     }
 
-    const message = `🌸 *Your OTP is: ${otp}*\n\n⏳ Expires in ${Math.max(1, Math.floor(expirySeconds / 60))} minutes.\n⚠️ Never share this code with anyone.`;
+    const jid = lookup.jid;
+    const expiryMinutes = Math.max(1, Math.floor(expirySeconds / 60));
+    const message = [
+      'OTP Verification Code',
+      `Code: ${otp}`,
+      `Expires in: ${expiryMinutes} minute(s)`,
+      'Do not share this code with anyone.'
+    ].join('\n');
 
-    await this.sock.presenceSubscribe(jid);
-    await new Promise((resolve) => setTimeout(resolve, 250));
-
+    await this.sock.sendPresenceUpdate('composing', jid);
+    await sleep(2000);
     await this.sock.sendMessage(jid, { text: message });
+    await this.sock.sendPresenceUpdate('paused', jid);
     this.lastSentByNumber.set(normalizedPhone, {
       phone: normalizedPhone,
       message,
