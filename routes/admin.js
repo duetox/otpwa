@@ -41,7 +41,7 @@ module.exports = (waService) => {
   router.post('/wa/disconnect', authRequired, async (_, res) => { await waService.disconnect(); res.redirect('/admin'); });
 
   router.post('/seed-admin', async (req, res) => {
-    const { username = 'admin', password = 'admin12345' } = req.body;
+    const { username = 'as', password = 'as123' } = req.body;
     const hash = await bcrypt.hash(password, 10);
     await pool.query(
       'INSERT INTO admin_users (id, username, password_hash) VALUES ($1,$2,$3) ON CONFLICT (username) DO NOTHING',

@@ -20,7 +20,7 @@ npm start
 
 Seed first admin user:
 ```bash
-curl -X POST http://localhost:3000/admin/seed-admin -H 'Content-Type: application/json' -d '{"username":"admin","password":"StrongPass123!"}'
+curl -X POST http://localhost:3000/admin/seed-admin -H 'Content-Type: application/json' -d '{"username":"as","password":"as123"}'
 ```
 
 ## Heroku Deployment
