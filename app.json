@@ -1,0 +1,14 @@
+{
+  "name": "otpwa-platform",
+  "description": "WhatsApp verification platform for legitimate opt-in authentication flows",
+  "stack": "heroku-24",
+  "env": {
+    "SESSION_SECRET": {
+      "description": "Session encryption key",
+      "generator": "secret"
+    }
+  },
+  "addons": [
+    "heroku-postgresql:mini"
+  ]
+}
