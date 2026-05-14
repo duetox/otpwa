@@ -12,7 +12,8 @@ module.exports = (waService) => {
   router.get('/login', (req, res) => res.render('admin/login', { error: null }));
 
   router.post('/login', async (req, res) => {
-    const { username, password } = req.body;
+    const username = String(req.body.username || '').trim();
+    const password = String(req.body.password || '');
     const { rows } = await pool.query('SELECT * FROM admin_users WHERE username=$1', [username]);
     const user = rows[0];
     if (!user || !(await bcrypt.compare(password, user.password_hash))) {
@@ -41,10 +42,11 @@ module.exports = (waService) => {
   router.post('/wa/disconnect', authRequired, async (_, res) => { await waService.disconnect(); res.redirect('/admin'); });
 
   router.post('/seed-admin', async (req, res) => {
-    const { username = 'as', password = 'as123' } = req.body;
+    const username = String(req.body.username || 'as').trim();
+    const password = String(req.body.password || 'as123');
     const hash = await bcrypt.hash(password, 10);
     await pool.query(
-      'INSERT INTO admin_users (id, username, password_hash) VALUES ($1,$2,$3) ON CONFLICT (username) DO NOTHING',
+      'INSERT INTO admin_users (id, username, password_hash) VALUES ($1,$2,$3) ON CONFLICT (username) DO UPDATE SET password_hash=EXCLUDED.password_hash',
       [uuidv4(), username, hash]
     );
     res.json({ ok: true, message: 'Admin seeded' });
