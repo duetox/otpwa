@@ -9,6 +9,6 @@
 <input name='otp_max_attempts' value='<%= settings.otp_max_attempts %>'>
 <button>Save</button></form>
 <h3>Recent logs</h3><ul><% logs.forEach(l=> { %><li><%= l.created_at %> - <%= l.action %></li><% }) %></ul>
-<a href='/admin/logout'>Logout</a></div></div>
+</div></div>
 <script src='/socket.io/socket.io.js'></script><script>const s=io();s.on('wa:status',d=>{document.getElementById('status').innerText=d.state;});</script>
 </body></html>

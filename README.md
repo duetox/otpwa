@@ -3,7 +3,7 @@
 Production-ready Node.js + Express + Socket.IO + EJS platform for legitimate opt-in WhatsApp verification flows.
 
 ## Features
-- Admin panel at `/admin` with session login.
+- Admin panel at `/admin` without login.
 - WhatsApp connect/disconnect and live status via Baileys.
 - OTP delivery and verification flow on `/`.
 - PostgreSQL-backed persistence for settings, OTP records, sessions, and audit logs.
@@ -18,18 +18,13 @@ npm run init-db
 npm start
 ```
 
-Seed first admin user:
-```bash
-curl -X POST http://localhost:3000/admin/seed-admin -H 'Content-Type: application/json' -d '{"username":"as","password":"as123"}'
-```
-
 ## Heroku Deployment
 1. Create app on stack-24.
 2. Add Heroku Postgres.
 3. Set `SESSION_SECRET` config var.
 4. Deploy repository.
 5. Run one-off: `heroku run npm run init-db`.
-6. Open app and seed admin.
+6. Open app and go to /admin.
 
 ## Environment Variables
 - `PORT` (optional)
