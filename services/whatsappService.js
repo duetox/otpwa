@@ -51,7 +51,7 @@ class WhatsAppService {
 
   async sendOtp(phone, otp, expirySeconds) {
     if (!this.sock) throw new Error('WhatsApp is not connected');
-    const message = `🔐 Your verification code is: ${otp}\n\n⏳ Expires in ${Math.floor(expirySeconds / 60)} minutes.\n⚠️ Never share this code.`;
+    const message = `🌸 *Your OTP is: ${otp}*\n\n⏳ Expires in ${Math.floor(expirySeconds / 60)} minutes.\n⚠️ Never share this code with anyone.`;
     const jid = `${phone.replace(/\D/g, '')}@s.whatsapp.net`;
     await this.sock.sendMessage(jid, { text: message });
   }
