@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
 <title><%= settings.brand_name %></title><link rel='stylesheet' href='/css/style.css'></head>
 <body><div class='wrap'><div class='card'><h1>🌸 WhatsApp OTP Verify</h1>
-<input id='phone' placeholder='+15551234567'><button onclick='sendOtp()'>Send Code</button>
-<input id='otp' placeholder='6-digit code'><button onclick='verifyOtp()'>Verify</button>
+<input id='phone' placeholder='+15551234567'><button id='send-code-btn' type='button'>Send Code</button>
+<input id='otp' placeholder='6-digit code'><button id='verify-btn' type='button'>Verify</button>
 <p id='msg'></p></div></div>
 <script src='/socket.io/socket.io.js'></script><script src='/js/main.js'></script></body></html>
