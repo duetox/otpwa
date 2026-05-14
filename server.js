@@ -10,6 +10,7 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 const pool = require('./config/db');
 const WhatsAppService = require('./services/whatsappService');
+const { ensureSchema } = require('./config/ensureSchema');
 
 const app = express();
 const server = http.createServer(app);
@@ -54,7 +55,16 @@ app.use((err, req, res, _next) => {
 });
 
 const port = process.env.PORT || 3000;
-server.listen(port, async () => {
-  console.log(`Server listening on ${port}`);
-  try { await waService.connect(); } catch (e) { console.error(e.message); }
-});
+
+(async () => {
+  try {
+    await ensureSchema();
+    server.listen(port, async () => {
+      console.log(`Server listening on ${port}`);
+      try { await waService.connect(); } catch (e) { console.error(e.message); }
+    });
+  } catch (error) {
+    console.error('Failed to initialize database schema:', error);
+    process.exit(1);
+  }
+})();
