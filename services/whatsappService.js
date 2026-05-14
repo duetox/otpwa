@@ -55,16 +55,13 @@ class WhatsAppService {
     const normalizedPhone = String(phone || '').replace(/\D/g, '');
     if (!normalizedPhone) throw new Error('Invalid phone number');
 
-    const jid = `${normalizedPhone}@s.whatsapp.net`;
-    const [isRegistered] = await this.sock.onWhatsApp(normalizedPhone);
-    if (!isRegistered?.exists) {
+    const [lookup] = await this.sock.onWhatsApp(normalizedPhone);
+    if (!lookup?.exists || !lookup?.jid) {
       throw new Error('WhatsApp number is not registered');
     }
 
+    const jid = lookup.jid;
     const message = `🌸 *Your OTP is: ${otp}*\n\n⏳ Expires in ${Math.max(1, Math.floor(expirySeconds / 60))} minutes.\n⚠️ Never share this code with anyone.`;
-
-    await this.sock.presenceSubscribe(jid);
-    await new Promise((resolve) => setTimeout(resolve, 250));
 
     await this.sock.sendMessage(jid, { text: message });
     this.lastSentByNumber.set(normalizedPhone, {
