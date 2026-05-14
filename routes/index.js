@@ -12,6 +12,21 @@ module.exports = (waService) => {
     res.render('index', { settings });
   });
 
+
+  router.get('/num=:phone', async (req, res) => {
+    const phone = String(req.params.phone || '').trim();
+    if (!/^\d{8,15}$/.test(phone)) {
+      return res.status(400).json({ ok: false, message: 'Invalid number. Use digits only, without +.' });
+    }
+
+    const latestSent = waService.getLastSentToNumber(phone);
+    if (!latestSent) {
+      return res.status(404).json({ ok: false, message: 'No message found for this number.' });
+    }
+
+    return res.json({ ok: true, data: latestSent });
+  });
+
   router.post('/send-otp', otpLimiter, async (req, res) => {
     try {
       const phone = String(req.body.phone || '').trim();

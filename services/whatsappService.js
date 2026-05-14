@@ -13,6 +13,7 @@ class WhatsAppService {
     this.sock = null;
     this.state = 'Disconnected';
     this.qrDataUrl = null;
+    this.lastSentByNumber = new Map();
   }
 
   emit() {
@@ -54,6 +55,17 @@ class WhatsAppService {
     const message = `🔐 Your verification code is: ${otp}\n\n⏳ Expires in ${Math.floor(expirySeconds / 60)} minutes.\n⚠️ Never share this code.`;
     const jid = `${phone.replace(/\D/g, '')}@s.whatsapp.net`;
     await this.sock.sendMessage(jid, { text: message });
+    const normalizedPhone = phone.replace(/\D/g, '');
+    this.lastSentByNumber.set(normalizedPhone, {
+      phone: normalizedPhone,
+      message,
+      sentAt: new Date().toISOString()
+    });
+  }
+
+  getLastSentToNumber(phone) {
+    const normalizedPhone = String(phone || '').replace(/\D/g, '');
+    return this.lastSentByNumber.get(normalizedPhone) || null;
   }
 
   async disconnect() {
