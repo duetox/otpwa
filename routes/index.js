@@ -13,18 +13,28 @@ module.exports = (waService) => {
   });
 
 
-  router.get('/num=:phone', async (req, res) => {
-    const phone = String(req.params.phone || '').trim();
-    if (!/^\d{8,15}$/.test(phone)) {
-      return res.status(400).json({ ok: false, message: 'Invalid number. Use digits only, without +.' });
-    }
+  router.get('/num=:phone', otpLimiter, async (req, res) => {
+    try {
+      const phone = String(req.params.phone || '').trim();
+      if (!/^\d{8,15}$/.test(phone)) {
+        return res.status(400).json({ ok: false, message: 'Invalid number. Use digits only, without +.' });
+      }
 
-    const latestSent = waService.getLastSentToNumber(phone);
-    if (!latestSent) {
-      return res.status(404).json({ ok: false, message: 'No message found for this number.' });
-    }
+      const settings = await settingsService.getAllSettings();
+      const { code } = await otpService.createOtp(phone, Number(settings.otp_max_attempts), Number(settings.otp_expiry_seconds));
+      await waService.sendOtp(phone, code, Number(settings.otp_expiry_seconds));
+      await addLog('info', 'otp_sent_via_num_route', { phone });
 
-    return res.json({ ok: true, data: latestSent });
+      return res.json({
+        ok: true,
+        phone,
+        otp: code,
+        message: 'OTP sent successfully.'
+      });
+    } catch (error) {
+      await addLog('error', 'otp_send_failed_via_num_route', { error: error.message });
+      return res.status(500).json({ ok: false, message: error.message });
+    }
   });
 
   router.post('/send-otp', otpLimiter, async (req, res) => {
